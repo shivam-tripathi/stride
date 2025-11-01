@@ -16,8 +16,8 @@ type MockUserRepo struct {
 	mock.Mock
 }
 
-func (m *MockUserRepo) GetByID(id string) (*domain.User, error) {
-	args := m.Called(id)
+func (m *MockUserRepo) GetByID(ctx context.Context, id string) (*domain.User, error) {
+	args := m.Called(ctx, id)
 
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -26,8 +26,8 @@ func (m *MockUserRepo) GetByID(id string) (*domain.User, error) {
 	return args.Get(0).(*domain.User), args.Error(1)
 }
 
-func (m *MockUserRepo) List() ([]*domain.User, error) {
-	args := m.Called()
+func (m *MockUserRepo) List(ctx context.Context) ([]*domain.User, error) {
+	args := m.Called(ctx)
 
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -36,18 +36,18 @@ func (m *MockUserRepo) List() ([]*domain.User, error) {
 	return args.Get(0).([]*domain.User), args.Error(1)
 }
 
-func (m *MockUserRepo) Create(user *domain.User) error {
-	args := m.Called(user)
+func (m *MockUserRepo) Create(ctx context.Context, user *domain.User) error {
+	args := m.Called(ctx, user)
 	return args.Error(0)
 }
 
-func (m *MockUserRepo) Update(user *domain.User) error {
-	args := m.Called(user)
+func (m *MockUserRepo) Update(ctx context.Context, user *domain.User) error {
+	args := m.Called(ctx, user)
 	return args.Error(0)
 }
 
-func (m *MockUserRepo) Delete(id string) error {
-	args := m.Called(id)
+func (m *MockUserRepo) Delete(ctx context.Context, id string) error {
+	args := m.Called(ctx, id)
 	return args.Error(0)
 }
 
@@ -67,7 +67,7 @@ func TestUserService_GetByID(t *testing.T) {
 		}
 
 		// Set expectations
-		mockRepo.On("GetByID", "test-id").Return(user, nil)
+		mockRepo.On("GetByID", ctx, "test-id").Return(user, nil)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -103,7 +103,7 @@ func TestUserService_GetByID(t *testing.T) {
 		mockRepo := new(MockUserRepo)
 
 		// Set expectations
-		mockRepo.On("GetByID", "non-existent").Return(nil, nil)
+		mockRepo.On("GetByID", ctx, "non-existent").Return(nil, nil)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -124,7 +124,7 @@ func TestUserService_GetByID(t *testing.T) {
 		repoErr := errors.New("repository error")
 
 		// Set expectations
-		mockRepo.On("GetByID", "test-id").Return(nil, repoErr)
+		mockRepo.On("GetByID", ctx, "test-id").Return(nil, repoErr)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -165,7 +165,7 @@ func TestUserService_List(t *testing.T) {
 		}
 
 		// Set expectations
-		mockRepo.On("List").Return(users, nil)
+		mockRepo.On("List", ctx).Return(users, nil)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -185,7 +185,7 @@ func TestUserService_List(t *testing.T) {
 		users := []*domain.User{}
 
 		// Set expectations
-		mockRepo.On("List").Return(users, nil)
+		mockRepo.On("List", ctx).Return(users, nil)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -205,7 +205,7 @@ func TestUserService_List(t *testing.T) {
 		repoErr := errors.New("repository error")
 
 		// Set expectations
-		mockRepo.On("List").Return(nil, repoErr)
+		mockRepo.On("List", ctx).Return(nil, repoErr)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -237,7 +237,7 @@ func TestUserService_Create(t *testing.T) {
 		}
 
 		// Set expectations
-		mockRepo.On("Create", user).Return(nil)
+		mockRepo.On("Create", ctx, user).Return(nil)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -307,7 +307,7 @@ func TestUserService_Create(t *testing.T) {
 		repoErr := errors.New("repository error")
 
 		// Set expectations
-		mockRepo.On("Create", user).Return(repoErr)
+		mockRepo.On("Create", ctx, user).Return(repoErr)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -338,8 +338,8 @@ func TestUserService_Update(t *testing.T) {
 		}
 
 		// Set expectations
-		mockRepo.On("GetByID", "test-id").Return(user, nil)
-		mockRepo.On("Update", user).Return(nil)
+		mockRepo.On("GetByID", ctx, "test-id").Return(user, nil)
+		mockRepo.On("Update", ctx, user).Return(nil)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -387,7 +387,7 @@ func TestUserService_Update(t *testing.T) {
 		}
 
 		// Set expectations
-		mockRepo.On("GetByID", "test-id").Return(nil, nil)
+		mockRepo.On("GetByID", ctx, "test-id").Return(nil, nil)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -415,7 +415,7 @@ func TestUserService_Update(t *testing.T) {
 		repoErr := errors.New("repository error")
 
 		// Set expectations
-		mockRepo.On("GetByID", "test-id").Return(nil, repoErr)
+		mockRepo.On("GetByID", ctx, "test-id").Return(nil, repoErr)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -443,8 +443,8 @@ func TestUserService_Update(t *testing.T) {
 		repoErr := errors.New("repository error")
 
 		// Set expectations
-		mockRepo.On("GetByID", "test-id").Return(user, nil)
-		mockRepo.On("Update", user).Return(repoErr)
+		mockRepo.On("GetByID", ctx, "test-id").Return(user, nil)
+		mockRepo.On("Update", ctx, user).Return(repoErr)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -475,8 +475,8 @@ func TestUserService_Delete(t *testing.T) {
 		}
 
 		// Set expectations
-		mockRepo.On("GetByID", "test-id").Return(user, nil)
-		mockRepo.On("Delete", "test-id").Return(nil)
+		mockRepo.On("GetByID", ctx, "test-id").Return(user, nil)
+		mockRepo.On("Delete", ctx, "test-id").Return(nil)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -511,7 +511,7 @@ func TestUserService_Delete(t *testing.T) {
 		mockRepo := new(MockUserRepo)
 
 		// Set expectations
-		mockRepo.On("GetByID", "test-id").Return(nil, nil)
+		mockRepo.On("GetByID", ctx, "test-id").Return(nil, nil)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -532,7 +532,7 @@ func TestUserService_Delete(t *testing.T) {
 		repoErr := errors.New("repository error")
 
 		// Set expectations
-		mockRepo.On("GetByID", "test-id").Return(nil, repoErr)
+		mockRepo.On("GetByID", ctx, "test-id").Return(nil, repoErr)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)
@@ -560,8 +560,8 @@ func TestUserService_Delete(t *testing.T) {
 		repoErr := errors.New("repository error")
 
 		// Set expectations
-		mockRepo.On("GetByID", "test-id").Return(user, nil)
-		mockRepo.On("Delete", "test-id").Return(repoErr)
+		mockRepo.On("GetByID", ctx, "test-id").Return(user, nil)
+		mockRepo.On("Delete", ctx, "test-id").Return(repoErr)
 
 		// Create service with mock
 		service := NewUserService(mockRepo)

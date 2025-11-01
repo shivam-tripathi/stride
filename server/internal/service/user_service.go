@@ -45,7 +45,7 @@ func (s *userService) GetByID(ctx context.Context, id string) (*domain.User, err
 		return nil, ErrInvalidUser
 	}
 
-	user, err := s.userRepo.GetByID(id)
+	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		logger.Error("Failed to get user", zap.String("userId", id), zap.Error(err))
 		return nil, err
@@ -62,7 +62,7 @@ func (s *userService) GetByID(ctx context.Context, id string) (*domain.User, err
 func (s *userService) List(ctx context.Context) ([]*domain.User, error) {
 	logger.Debug("Listing users")
 
-	users, err := s.userRepo.List()
+	users, err := s.userRepo.List(ctx)
 	if err != nil {
 		logger.Error("Failed to list users", zap.Error(err))
 		return nil, err
@@ -79,7 +79,7 @@ func (s *userService) Create(ctx context.Context, user *domain.User) error {
 		return ErrInvalidUser
 	}
 
-	err := s.userRepo.Create(user)
+	err := s.userRepo.Create(ctx, user)
 	if err != nil {
 		logger.Error("Failed to create user", zap.Error(err))
 		return err
@@ -98,7 +98,7 @@ func (s *userService) Update(ctx context.Context, user *domain.User) error {
 	}
 
 	// Check if user exists
-	existingUser, err := s.userRepo.GetByID(user.ID)
+	existingUser, err := s.userRepo.GetByID(ctx, user.ID)
 	if err != nil {
 		logger.Error("Failed to get user for update", zap.String("userId", user.ID), zap.Error(err))
 		return err
@@ -108,7 +108,7 @@ func (s *userService) Update(ctx context.Context, user *domain.User) error {
 		return ErrUserNotFound
 	}
 
-	err = s.userRepo.Update(user)
+	err = s.userRepo.Update(ctx, user)
 	if err != nil {
 		logger.Error("Failed to update user", zap.String("userId", user.ID), zap.Error(err))
 		return err
@@ -127,7 +127,7 @@ func (s *userService) Delete(ctx context.Context, id string) error {
 	}
 
 	// Check if user exists
-	existingUser, err := s.userRepo.GetByID(id)
+	existingUser, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		logger.Error("Failed to get user for deletion", zap.String("userId", id), zap.Error(err))
 		return err
@@ -137,7 +137,7 @@ func (s *userService) Delete(ctx context.Context, id string) error {
 		return ErrUserNotFound
 	}
 
-	err = s.userRepo.Delete(id)
+	err = s.userRepo.Delete(ctx, id)
 	if err != nil {
 		logger.Error("Failed to delete user", zap.String("userId", id), zap.Error(err))
 		return err

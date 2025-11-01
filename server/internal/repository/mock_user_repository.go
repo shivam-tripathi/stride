@@ -1,16 +1,16 @@
 package repository
 
 import (
-	"errors"
+	"context"
 	"sync"
 
 	"quizizz.com/internal/domain"
 )
 
-// Common errors
+// Common errors for user repository
 var (
-	ErrUserExists   = errors.New("user already exists")
-	ErrUserNotFound = errors.New("user not found")
+	ErrUserExists   = ErrAlreadyExists
+	ErrUserNotFound = ErrNotFound
 )
 
 // MockUserRepository is an in-memory implementation of UserRepository for testing
@@ -27,7 +27,7 @@ func NewMockUserRepository() UserRepository {
 }
 
 // GetByID returns a user by ID
-func (r *MockUserRepository) GetByID(id string) (*domain.User, error) {
+func (r *MockUserRepository) GetByID(ctx context.Context, id string) (*domain.User, error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 
@@ -40,7 +40,7 @@ func (r *MockUserRepository) GetByID(id string) (*domain.User, error) {
 }
 
 // List returns all users
-func (r *MockUserRepository) List() ([]*domain.User, error) {
+func (r *MockUserRepository) List(ctx context.Context) ([]*domain.User, error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 
@@ -53,7 +53,7 @@ func (r *MockUserRepository) List() ([]*domain.User, error) {
 }
 
 // Create adds a new user
-func (r *MockUserRepository) Create(user *domain.User) error {
+func (r *MockUserRepository) Create(ctx context.Context, user *domain.User) error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 
@@ -70,7 +70,7 @@ func (r *MockUserRepository) Create(user *domain.User) error {
 }
 
 // Update updates an existing user
-func (r *MockUserRepository) Update(user *domain.User) error {
+func (r *MockUserRepository) Update(ctx context.Context, user *domain.User) error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 
@@ -87,7 +87,7 @@ func (r *MockUserRepository) Update(user *domain.User) error {
 }
 
 // Delete removes a user
-func (r *MockUserRepository) Delete(id string) error {
+func (r *MockUserRepository) Delete(ctx context.Context, id string) error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 

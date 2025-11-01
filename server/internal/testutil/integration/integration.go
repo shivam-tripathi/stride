@@ -1,7 +1,4 @@
 // Package integration provides utilities for integration testing
-//go:build integration
-// +build integration
-
 package integration
 
 import (
@@ -47,7 +44,11 @@ func Setup(t *testing.T) *TestEnv {
 	res := setupTestResources(t, cfg)
 
 	// Create repositories
-	userRepo := repository.NewMockUserRepository() // Use mock for now
+	// Initialize user repository
+	// For integration tests, use MongoDB repository with test database
+	// userRepo := repository.NewMongoUserRepository(resources.DB)
+	// For now, use mock repository
+	userRepo := repository.NewMockUserRepository()
 
 	// Create services
 	appService := service.NewAppService(cfg)

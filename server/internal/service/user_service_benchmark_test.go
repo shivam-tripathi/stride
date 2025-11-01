@@ -29,7 +29,7 @@ func BenchmarkUserService_GetByID(b *testing.B) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	err := repo.Create(user)
+	err := repo.Create(ctx, user)
 	if err != nil {
 		b.Fatalf("Failed to create test user: %v", err)
 	}
@@ -62,7 +62,7 @@ func BenchmarkUserService_List(b *testing.B) {
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
-		err := repo.Create(user)
+		err := repo.Create(ctx, user)
 		if err != nil {
 			b.Fatalf("Failed to create test user: %v", err)
 		}
@@ -122,7 +122,7 @@ func BenchmarkUserService_Update(b *testing.B) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	err := repo.Create(user)
+	err := repo.Create(ctx, user)
 	if err != nil {
 		b.Fatalf("Failed to create test user: %v", err)
 	}
@@ -168,7 +168,7 @@ func BenchmarkUserService_Delete(b *testing.B) {
 				UpdatedAt: time.Now(),
 			}
 
-			err := repo.Create(user)
+			err := repo.Create(ctx, user)
 			if err != nil {
 				b.Fatalf("Failed to create test user: %v", err)
 			}
@@ -201,7 +201,7 @@ func BenchmarkUserService_Delete(b *testing.B) {
 				UpdatedAt: time.Now(),
 			}
 
-			err := repo.Create(user)
+			err := repo.Create(ctx, user)
 			if err != nil {
 				b.Fatalf("Failed to create test user: %v", err)
 			}

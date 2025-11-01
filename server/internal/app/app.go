@@ -86,10 +86,8 @@ func (a *App) Run() error {
 		a.tracerProvider = tracerProvider
 	}
 
-	// Initialize resources before starting the server
-	if err := resources.InitResources(ctx, a.resources); err != nil {
-		return fmt.Errorf("failed to initialize resources: %w", err)
-	}
+	// Note: Resources are already initialized in main.go before app creation
+	// This ensures resources are connected when repositories are created
 
 	// Log startup
 	logger.Info("Starting server",

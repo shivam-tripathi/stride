@@ -1,6 +1,3 @@
-//go:build test || integration
-// +build test integration
-
 package resources
 
 import (
@@ -12,13 +9,13 @@ import (
 // MockDB is a mock implementation of DBResource for testing
 type MockDB struct {
 	connected bool
-	config    config.DatabaseConfig
+	config    config.MongoDBConfig
 }
 
 // NewMockDB creates a new MockDB resource
 func NewMockDB(cfg *config.Config) DBResource {
 	return &MockDB{
-		config: cfg.Database,
+		config: cfg.MongoDB,
 	}
 }
 
@@ -44,7 +41,7 @@ func (d *MockDB) Ping(ctx context.Context) error {
 
 // Name returns the name of the resource
 func (d *MockDB) Name() string {
-	return "mock-database"
+	return "mock-mongodb"
 }
 
 // DB returns a mock database instance (nil for now since we're using mock repositories)

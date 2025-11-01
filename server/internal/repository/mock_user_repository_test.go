@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -21,12 +22,12 @@ func TestMockUserRepository_GetByID(t *testing.T) {
 	}
 
 	// Add the user to the repository
-	err := repo.Create(user)
+	err := repo.Create(context.Background(), user)
 	require.NoError(t, err)
 
 	// Test successful retrieval
 	t.Run("Existing user", func(t *testing.T) {
-		foundUser, err := repo.GetByID("test-id")
+		foundUser, err := repo.GetByID(context.Background(), "test-id")
 		assert.NoError(t, err)
 		assert.NotNil(t, foundUser)
 		assert.Equal(t, user.ID, foundUser.ID)
@@ -36,7 +37,7 @@ func TestMockUserRepository_GetByID(t *testing.T) {
 
 	// Test user not found
 	t.Run("Non-existent user", func(t *testing.T) {
-		foundUser, err := repo.GetByID("non-existent-id")
+		foundUser, err := repo.GetByID(context.Background(), "non-existent-id")
 		assert.NoError(t, err) // No error, just nil user
 		assert.Nil(t, foundUser)
 	})
@@ -64,13 +65,13 @@ func TestMockUserRepository_List(t *testing.T) {
 
 	// Add users to the repository
 	for _, user := range users {
-		err := repo.Create(user)
+		err := repo.Create(context.Background(), user)
 		require.NoError(t, err)
 	}
 
 	// Test list users
 	t.Run("List all users", func(t *testing.T) {
-		foundUsers, err := repo.List()
+		foundUsers, err := repo.List(context.Background())
 		assert.NoError(t, err)
 		assert.Len(t, foundUsers, len(users))
 
@@ -88,7 +89,7 @@ func TestMockUserRepository_List(t *testing.T) {
 	// Test empty repository
 	t.Run("Empty repository", func(t *testing.T) {
 		emptyRepo := NewMockUserRepository()
-		foundUsers, err := emptyRepo.List()
+		foundUsers, err := emptyRepo.List(context.Background())
 		assert.NoError(t, err)
 		assert.Empty(t, foundUsers)
 	})
@@ -107,11 +108,11 @@ func TestMockUserRepository_Create(t *testing.T) {
 
 	// Test successful creation
 	t.Run("Create new user", func(t *testing.T) {
-		err := repo.Create(user)
+		err := repo.Create(context.Background(), user)
 		assert.NoError(t, err)
 
 		// Verify user was created
-		foundUser, err := repo.GetByID(user.ID)
+		foundUser, err := repo.GetByID(context.Background(), user.ID)
 		assert.NoError(t, err)
 		assert.NotNil(t, foundUser)
 		assert.Equal(t, user.ID, foundUser.ID)
@@ -119,7 +120,7 @@ func TestMockUserRepository_Create(t *testing.T) {
 
 	// Test duplicate user
 	t.Run("Create duplicate user", func(t *testing.T) {
-		err := repo.Create(user)
+		err := repo.Create(context.Background(), user)
 		assert.Error(t, err)
 		assert.Equal(t, ErrUserExists, err)
 	})
@@ -137,7 +138,7 @@ func TestMockUserRepository_Update(t *testing.T) {
 	}
 
 	// Add the user to the repository
-	err := repo.Create(user)
+	err := repo.Create(context.Background(), user)
 	require.NoError(t, err)
 
 	// Test successful update
@@ -151,11 +152,11 @@ func TestMockUserRepository_Update(t *testing.T) {
 			UpdatedAt: time.Now(),
 		}
 
-		err := repo.Update(updatedUser)
+		err := repo.Update(context.Background(), updatedUser)
 		assert.NoError(t, err)
 
 		// Verify user was updated
-		foundUser, err := repo.GetByID(user.ID)
+		foundUser, err := repo.GetByID(context.Background(), user.ID)
 		assert.NoError(t, err)
 		assert.NotNil(t, foundUser)
 		assert.Equal(t, updatedUser.Name, foundUser.Name)
@@ -172,7 +173,7 @@ func TestMockUserRepository_Update(t *testing.T) {
 			UpdatedAt: time.Now(),
 		}
 
-		err := repo.Update(nonExistentUser)
+		err := repo.Update(context.Background(), nonExistentUser)
 		assert.Error(t, err)
 		assert.Equal(t, ErrUserNotFound, err)
 	})
@@ -190,23 +191,23 @@ func TestMockUserRepository_Delete(t *testing.T) {
 	}
 
 	// Add the user to the repository
-	err := repo.Create(user)
+	err := repo.Create(context.Background(), user)
 	require.NoError(t, err)
 
 	// Test successful deletion
 	t.Run("Delete existing user", func(t *testing.T) {
-		err := repo.Delete(user.ID)
+		err := repo.Delete(context.Background(), user.ID)
 		assert.NoError(t, err)
 
 		// Verify user was deleted
-		foundUser, err := repo.GetByID(user.ID)
+		foundUser, err := repo.GetByID(context.Background(), user.ID)
 		assert.NoError(t, err)
 		assert.Nil(t, foundUser)
 	})
 
 	// Test delete non-existent user
 	t.Run("Delete non-existent user", func(t *testing.T) {
-		err := repo.Delete("non-existent-id")
+		err := repo.Delete(context.Background(), "non-existent-id")
 		assert.Error(t, err)
 		assert.Equal(t, ErrUserNotFound, err)
 	})

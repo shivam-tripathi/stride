@@ -1,6 +1,36 @@
-version: '3'
+version: '3.8'
 
 services:
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=app
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/app --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
   api:
     build:
       context: .
@@ -12,6 +42,21 @@ services:
       - PORT=8080
       - LOG_LEVEL=debug
       - ENV=development
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017
+      - MONGODB_DATABASE=app
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - OTEL_ENABLED=true
+      - OTEL_EXPORTER_OTLP_ENDPOINT=jaeger:4317
     volumes:
       - .:/app
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  redis_data:

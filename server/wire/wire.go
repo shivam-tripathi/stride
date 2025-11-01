@@ -20,12 +20,21 @@ var ResourcesSet = wire.NewSet(
 	provideResources,
 )
 
+// RepositorySet is a Wire provider set for repositories
+var RepositorySet = wire.NewSet(
+	provideUserRepository,
+)
+
 // ServiceSet is a Wire provider set for services
 var ServiceSet = wire.NewSet(
 	service.NewAppService,
 	service.NewUserService,
-	repository.NewMockUserRepository,
 )
+
+// provideUserRepository provides a UserRepository
+func provideUserRepository(db resources.DBResource) repository.UserRepository {
+	return repository.NewUserRepository(db)
+}
 
 // provideResources provides a resources.Resources struct with all resources
 func provideResources(db resources.DBResource, redis resources.RedisResource) *resources.Resources {
@@ -44,6 +53,9 @@ func InitializeApp() (*app.App, error) {
 		// Resources
 		ResourcesSet,
 
+		// Repositories
+		RepositorySet,
+
 		// Services
 		ServiceSet,
 
@@ -54,4 +66,28 @@ func InitializeApp() (*app.App, error) {
 		app.NewApp,
 	)
 	return &app.App{}, nil
+}
+
+// InitializeAppWithResources wires up the dependencies with pre-initialized resources
+// This is used when resources are initialized before Wire creates the app
+func InitializeAppWithResources(cfg *config.Config, res *resources.Resources) (*app.App, error) {
+	wire.Build(
+		// Repositories - use the provided resources
+		provideUserRepositoryFromResources,
+
+		// Services
+		ServiceSet,
+
+		// API Handlers
+		api.NewHandler,
+
+		// App
+		app.NewApp,
+	)
+	return &app.App{}, nil
+}
+
+// provideUserRepositoryFromResources creates a user repository from pre-initialized resources
+func provideUserRepositoryFromResources(res *resources.Resources) repository.UserRepository {
+	return repository.NewUserRepository(res.DB)
 }

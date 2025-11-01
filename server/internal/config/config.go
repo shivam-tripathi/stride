@@ -6,17 +6,14 @@ import (
 	"time"
 )
 
-// DatabaseConfig holds all database configuration
-type DatabaseConfig struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
-	Name     string
-	SSLMode  string
-	MaxOpen  int
-	MaxIdle  int
-	Timeout  time.Duration
+// MongoDBConfig holds all MongoDB configuration
+type MongoDBConfig struct {
+	URI            string
+	Database       string
+	MaxPoolSize    uint64
+	MinPoolSize    uint64
+	ConnectTimeout time.Duration
+	Timeout        time.Duration
 }
 
 // RedisConfig holds all Redis configuration
@@ -54,9 +51,9 @@ type Config struct {
 	Env      string
 
 	// Resource configurations
-	Database DatabaseConfig
-	Redis    RedisConfig
-	OTEL     OTELConfig
+	MongoDB MongoDBConfig
+	Redis   RedisConfig
+	OTEL    OTELConfig
 }
 
 // NewConfig creates a new Config
@@ -67,16 +64,13 @@ func NewConfig() *Config {
 		LogLevel: getEnv("LOG_LEVEL", "info"),
 		Env:      getEnv("ENV", "development"),
 
-		Database: DatabaseConfig{
-			Host:     getEnv("DB_HOST", "localhost"),
-			Port:     getEnv("DB_PORT", "5432"),
-			User:     getEnv("DB_USER", "postgres"),
-			Password: getEnv("DB_PASSWORD", "postgres"),
-			Name:     getEnv("DB_NAME", "app"),
-			SSLMode:  getEnv("DB_SSL_MODE", "disable"),
-			MaxOpen:  getEnvAsInt("DB_MAX_OPEN", 10),
-			MaxIdle:  getEnvAsInt("DB_MAX_IDLE", 5),
-			Timeout:  getEnvAsDuration("DB_TIMEOUT", 5*time.Second),
+		MongoDB: MongoDBConfig{
+			URI:            getEnv("MONGODB_URI", "mongodb://localhost:27017"),
+			Database:       getEnv("MONGODB_DATABASE", "app"),
+			MaxPoolSize:    uint64(getEnvAsInt("MONGODB_MAX_POOL_SIZE", 100)),
+			MinPoolSize:    uint64(getEnvAsInt("MONGODB_MIN_POOL_SIZE", 10)),
+			ConnectTimeout: getEnvAsDuration("MONGODB_CONNECT_TIMEOUT", 10*time.Second),
+			Timeout:        getEnvAsDuration("MONGODB_TIMEOUT", 5*time.Second),
 		},
 
 		Redis: RedisConfig{
